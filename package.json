@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ffmpeg/ffmpeg": "^0.12.15",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-primitive": "^2.1.4",
     "@radix-ui/react-select": "^2.2.6",
@@ -23,6 +24,7 @@
     "radix-ui": "^1.4.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-router-dom": "^7.15.1",
     "three": "^0.184.0",
     "uuid": "^14.0.0",
     "zustand": "^5.0.13"
