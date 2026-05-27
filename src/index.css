@@ -67,7 +67,11 @@
 }
 
 body {
-  margin: 0;
+  @apply bg-gray-950 text-white;
+}
+
+canvas {
+  display: block;
 }
 
 h1,
