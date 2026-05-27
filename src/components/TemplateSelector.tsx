@@ -25,7 +25,7 @@ export function TemplateSelector() {
     groupedTemplates[template.category].push(template);
   });
 
-  const currentTemplateId = currentAnimation?.template;
+  const currentTemplateId = currentAnimation?.templateId;
 
   return (
     <div className="flex flex-col gap-6">
@@ -38,7 +38,7 @@ export function TemplateSelector() {
             {templates.map((template) => (
               <Button
                 key={template.id}
-                onClick={() => selectTemplate(template.id)}
+                onClick={() => selectTemplate(template)}
                 variant={currentTemplateId === template.id ? 'default' : 'outline'}
                 className={`h-24 flex flex-col items-center justify-center whitespace-normal p-2 transition-all ${
                   currentTemplateId === template.id

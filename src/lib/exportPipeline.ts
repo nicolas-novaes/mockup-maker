@@ -1,11 +1,10 @@
-import { Animation } from './types';
-import { interpolateKeyframes } from './keyframes';
+import type { Animation } from './types';
 
 export async function exportToMP4(
-  canvas: HTMLCanvasElement,
-  animation: Animation,
-  fps: number = 30,
-  quality: 'hd' | '4k' = 'hd',
+  _canvas: HTMLCanvasElement,
+  _animation: Animation,
+  _fps: number = 30,
+  _quality: 'hd' | '4k' = 'hd',
   onProgress: (progress: number) => void
 ): Promise<Blob> {
   // MVP: Placeholder - just create a small dummy blob for now
@@ -15,17 +14,17 @@ export async function exportToMP4(
 }
 
 export async function exportToGIF(
-  canvas: HTMLCanvasElement,
-  animation: Animation,
-  fps: number = 30
+  _canvas: HTMLCanvasElement,
+  _animation: Animation,
+  _fps: number = 30
 ): Promise<Blob> {
   // MVP: Placeholder
   return new Blob(['mock gif data'], { type: 'image/gif' });
 }
 
 export async function exportToPNG(
-  canvas: HTMLCanvasElement,
-  animation: Animation
+  _canvas: HTMLCanvasElement,
+  _animation: Animation
 ): Promise<Blob> {
   // MVP: Placeholder
   return new Blob(['mock png data'], { type: 'image/png' });

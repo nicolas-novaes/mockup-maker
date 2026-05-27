@@ -21,7 +21,6 @@ export class RenderEngine {
   private scene: THREE.Scene;
   private camera: THREE.PerspectiveCamera;
   private renderer: THREE.WebGLRenderer;
-  private container: HTMLCanvasElement;
 
   private deviceGroup: THREE.Group;
   private screenMesh: THREE.Mesh;
@@ -31,7 +30,6 @@ export class RenderEngine {
   private screenTexture: THREE.CanvasTexture | null = null;
 
   constructor(canvas: HTMLCanvasElement, options: RenderEngineOptions = {}) {
-    this.container = canvas;
 
     const width = options.width || canvas.clientWidth;
     const height = options.height || canvas.clientHeight;
@@ -55,7 +53,7 @@ export class RenderEngine {
     this.renderer.setSize(width, height);
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFShadowShadowMap;
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
 
     // Create device group
     this.deviceGroup = new THREE.Group();

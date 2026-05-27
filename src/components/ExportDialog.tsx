@@ -25,7 +25,7 @@ interface ExportDialogProps {
 }
 
 export function ExportDialog({ open, onOpenChange }: ExportDialogProps) {
-  const { ffmpeg, loaded: ffmpegLoaded, error: ffmpegError } = useFFmpeg();
+  const { loaded: ffmpegLoaded, error: ffmpegError } = useFFmpeg();
   const currentAnimation = useEditorStore((s) => s.currentAnimation);
   const screenshot = useEditorStore((s) => s.screenshot);
 

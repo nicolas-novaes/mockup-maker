@@ -157,10 +157,9 @@ export function isWebGL2Supported(): boolean {
 export function getWebGLExtensions(): string[] {
   try {
     const canvas = document.createElement('canvas');
-    const gl =
-      canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    const gl = canvas.getContext('webgl') as WebGLRenderingContext | null;
     if (!gl) return [];
-    return gl.getSupportedExtensions() || [];
+    return (gl.getSupportedExtensions?.() as string[]) || [];
   } catch {
     return [];
   }
@@ -247,8 +246,8 @@ export function validateExportSettings(settings: {
 export function estimateExportSize(
   durationMs: number,
   fps: number,
-  width: number,
-  height: number,
+  _width: number,
+  _height: number,
   format: 'mp4' | 'webm' | 'gif' | 'apng' = 'mp4'
 ): number {
   const frameCount = (durationMs / 1000) * fps;

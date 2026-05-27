@@ -98,8 +98,7 @@ export function Preview3D() {
       // Interpolate keyframes
       const keyframeData = interpolateKeyframes(
         currentAnimation.keyframes,
-        currentTime,
-        currentAnimation.duration
+        currentTime
       );
 
       // Create transform from keyframe data

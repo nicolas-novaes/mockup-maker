@@ -158,8 +158,9 @@ export function AnimationTimeline() {
                     onChange={(e) =>
                       updateKeyframe(selectedKeyframe.id, {
                         rotation: {
-                          ...selectedKeyframe.rotation,
                           x: parseFloat(e.target.value) || 0,
+                          y: selectedKeyframe.rotation?.y || 0,
+                          z: selectedKeyframe.rotation?.z || 0,
                         },
                       })
                     }
@@ -175,8 +176,9 @@ export function AnimationTimeline() {
                     onChange={(e) =>
                       updateKeyframe(selectedKeyframe.id, {
                         rotation: {
-                          ...selectedKeyframe.rotation,
+                          x: selectedKeyframe.rotation?.x || 0,
                           y: parseFloat(e.target.value) || 0,
+                          z: selectedKeyframe.rotation?.z || 0,
                         },
                       })
                     }
@@ -192,7 +194,8 @@ export function AnimationTimeline() {
                     onChange={(e) =>
                       updateKeyframe(selectedKeyframe.id, {
                         rotation: {
-                          ...selectedKeyframe.rotation,
+                          x: selectedKeyframe.rotation?.x || 0,
+                          y: selectedKeyframe.rotation?.y || 0,
                           z: parseFloat(e.target.value) || 0,
                         },
                       })
@@ -216,8 +219,9 @@ export function AnimationTimeline() {
                     onChange={(e) =>
                       updateKeyframe(selectedKeyframe.id, {
                         position: {
-                          ...selectedKeyframe.position,
                           x: parseFloat(e.target.value) || 0,
+                          y: selectedKeyframe.position?.y || 0,
+                          z: selectedKeyframe.position?.z || 0,
                         },
                       })
                     }
@@ -233,8 +237,9 @@ export function AnimationTimeline() {
                     onChange={(e) =>
                       updateKeyframe(selectedKeyframe.id, {
                         position: {
-                          ...selectedKeyframe.position,
+                          x: selectedKeyframe.position?.x || 0,
                           y: parseFloat(e.target.value) || 0,
+                          z: selectedKeyframe.position?.z || 0,
                         },
                       })
                     }
@@ -250,7 +255,8 @@ export function AnimationTimeline() {
                     onChange={(e) =>
                       updateKeyframe(selectedKeyframe.id, {
                         position: {
-                          ...selectedKeyframe.position,
+                          x: selectedKeyframe.position?.x || 0,
+                          y: selectedKeyframe.position?.y || 0,
                           z: parseFloat(e.target.value) || 0,
                         },
                       })
