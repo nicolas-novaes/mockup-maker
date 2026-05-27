@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import type { Keyframe } from './types';
 
 export interface RenderEngineOptions {
   width?: number;

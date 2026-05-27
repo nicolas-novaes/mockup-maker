@@ -1,6 +1,5 @@
 import { useEditorStore } from '../store/useEditorStore';
 import { iPhoneDevices } from '../lib/deviceData';
-import { Button } from './ui/button';
 import {
   Select,
   SelectContent,

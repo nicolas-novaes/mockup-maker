@@ -96,7 +96,7 @@ export function Upload() {
       };
 
       reader.readAsDataURL(file);
-    } catch (error) {
+    } catch {
       setErrors(['An unexpected error occurred']);
       setIsLoading(false);
     }

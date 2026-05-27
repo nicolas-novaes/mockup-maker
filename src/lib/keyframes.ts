@@ -1,5 +1,5 @@
 import type { EasingFunction, Keyframe } from './types';
-import { lerp, lerpVector, Vector3, normalizeTime } from './utils-animation';
+import { lerp, lerpVector } from './utils-animation';
 
 /**
  * Easing functions implementation
@@ -158,8 +158,7 @@ export function findKeyframeBracket(
  */
 export function interpolateKeyframes(
   keyframes: Keyframe[],
-  time: number,
-  duration: number
+  time: number
 ): Partial<Keyframe> {
   if (keyframes.length === 0) {
     return {};
