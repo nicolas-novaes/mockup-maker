@@ -1,4 +1,4 @@
-import { Device } from './types';
+import type { Device } from './types';
 
 export const iPhoneDevices: Device[] = [
   // iPhone 17

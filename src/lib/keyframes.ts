@@ -1,4 +1,4 @@
-import { EasingFunction, Keyframe } from './types';
+import type { EasingFunction, Keyframe } from './types';
 import { lerp, lerpVector, Vector3, normalizeTime } from './utils-animation';
 
 /**
@@ -109,11 +109,11 @@ const easingFunctions: Record<EasingFunction, (t: number) => number> = {
       return n1 * (t -= 2.625 / d1) * t + 0.984375;
     }
   },
-  easeInBounce: (t) => 1 - easeOutBounce(1 - t),
+  easeInBounce: (t) => 1 - easingFunctions.easeOutBounce(1 - t),
   easeInOutBounce: (t) =>
     t < 0.5
-      ? (1 - easeOutBounce(1 - 2 * t)) / 2
-      : (1 + easeOutBounce(2 * t - 1)) / 2,
+      ? (1 - easingFunctions.easeOutBounce(1 - 2 * t)) / 2
+      : (1 + easingFunctions.easeOutBounce(2 * t - 1)) / 2,
 };
 
 /**
@@ -165,7 +165,6 @@ export function interpolateKeyframes(
     return {};
   }
 
-  const normalizedTime = normalizeTime(time, duration);
   const [before, after] = findKeyframeBracket(keyframes, time);
 
   // No interpolation needed

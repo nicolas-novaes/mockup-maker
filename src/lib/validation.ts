@@ -1,4 +1,4 @@
-import { Screenshot } from './types';
+import type { Screenshot } from './types';
 
 /**
  * Validate screenshot object
@@ -252,7 +252,6 @@ export function estimateExportSize(
   format: 'mp4' | 'webm' | 'gif' | 'apng' = 'mp4'
 ): number {
   const frameCount = (durationMs / 1000) * fps;
-  const pixelCount = width * height;
 
   // Very rough estimates in bytes per frame
   const bytesPerFrameEstimates: Record<string, number> = {

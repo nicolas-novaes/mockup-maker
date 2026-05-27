@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
-import {
+import type {
   Screenshot,
   Device,
   Animation,

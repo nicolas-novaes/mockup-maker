@@ -1,4 +1,4 @@
-import { AnimationTemplate } from './types';
+import type { AnimationTemplate } from './types';
 
 export const animationTemplates: AnimationTemplate[] = [
   {
