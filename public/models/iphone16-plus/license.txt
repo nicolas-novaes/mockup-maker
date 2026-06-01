@@ -1,0 +1,11 @@
+Model Information:
+* title:	Iphone 16 Plus
+* source:	https://sketchfab.com/3d-models/iphone-16-plus-c1719ed762a7412d933f3ddef0ce2929
+* author:	WhatIsLove (https://sketchfab.com/vladgutu11)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Iphone 16 Plus" (https://sketchfab.com/3d-models/iphone-16-plus-c1719ed762a7412d933f3ddef0ce2929) by WhatIsLove (https://sketchfab.com/vladgutu11) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

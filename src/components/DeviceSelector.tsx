@@ -1,5 +1,5 @@
 import { useEditorStore } from '../store/useEditorStore';
-import { iPhoneDevices } from '../lib/deviceData';
+import { allDevices } from '../lib/deviceData';
 import {
   Select,
   SelectContent,
@@ -16,19 +16,31 @@ export function DeviceSelector() {
   // Group devices by model generation
   const groupedDevices: Record<string, Device[]> = {};
 
-  iPhoneDevices.forEach((device) => {
-    const match = device.id.match(/iphone(\d+)/);
-    if (match) {
-      const generation = `iPhone ${match[1]}`;
-      if (!groupedDevices[generation]) {
-        groupedDevices[generation] = [];
-      }
-      groupedDevices[generation].push(device);
+  allDevices.forEach((device) => {
+    const iphoneMatch = device.id.match(/iphone(\d+)/);
+    const ipadMatch = device.id.match(/ipad/);
+    const macMatch = device.id.match(/macbook/);
+    const androidMatch = device.id.match(/galaxy|pixel|android/);
+    let group: string;
+    if (iphoneMatch) {
+      group = `iPhone ${iphoneMatch[1]}`;
+    } else if (ipadMatch) {
+      group = 'Tablets';
+    } else if (macMatch) {
+      group = 'MacBooks';
+    } else if (androidMatch) {
+      group = 'Android';
+    } else {
+      group = 'Other';
     }
+    if (!groupedDevices[group]) {
+      groupedDevices[group] = [];
+    }
+    groupedDevices[group].push(device);
   });
 
   const handleDeviceSelect = (deviceId: string) => {
-    const device = iPhoneDevices.find((d) => d.id === deviceId);
+    const device = allDevices.find((d) => d.id === deviceId);
     if (device) {
       selectDevice(device);
     }
@@ -37,24 +49,26 @@ export function DeviceSelector() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <label htmlFor="device-select" className="text-sm font-medium text-slate-200">
-          Device Model
+        <label htmlFor="device-select" className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
+          Device
         </label>
         <Select
           value={selectedDevice?.id || ''}
           onValueChange={handleDeviceSelect}
         >
-          <SelectTrigger id="device-select" className="w-full">
-            <SelectValue placeholder="Select a device..." />
+          <SelectTrigger id="device-select" className="w-full bg-gray-900 border-gray-700 text-gray-300">
+            <span className="truncate">
+              {selectedDevice?.displayName || 'Select device...'}
+            </span>
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-gray-900 border-gray-700">
             {Object.entries(groupedDevices).map(([generation, devices]) => (
               <div key={generation}>
-                <div className="px-2 py-1.5 text-xs font-semibold text-slate-400 uppercase">
+                <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase">
                   {generation}
                 </div>
                 {devices.map((device) => (
-                  <SelectItem key={device.id} value={device.id}>
+                  <SelectItem key={device.id} value={device.id} className="text-gray-300">
                     {device.displayName}
                   </SelectItem>
                 ))}
@@ -66,30 +80,30 @@ export function DeviceSelector() {
 
       {/* Device Specs */}
       {selectedDevice && (
-        <div className="bg-slate-700 rounded-lg p-4 space-y-2">
+        <div className="bg-gray-900 rounded-lg p-4 space-y-4 border border-gray-800">
           <div className="flex justify-between items-center">
-            <span className="text-sm text-slate-400">Screen Size</span>
-            <span className="text-sm font-mono font-semibold text-white">
+            <span className="text-xs text-gray-500">Screen</span>
+            <span className="text-xs font-mono text-gray-300">
               {selectedDevice.width}x{selectedDevice.height}
             </span>
           </div>
           {selectedDevice.notch && (
             <div className="flex justify-between items-center">
-              <span className="text-sm text-slate-400">Notch</span>
-              <span className="text-sm font-mono font-semibold text-white">
+              <span className="text-xs text-gray-500">Notch</span>
+              <span className="text-xs font-mono text-gray-300">
                 {selectedDevice.notch.width}x{selectedDevice.notch.height}
               </span>
             </div>
           )}
           <div className="flex justify-between items-center">
-            <span className="text-sm text-slate-400">Scale</span>
-            <span className="text-sm font-mono font-semibold text-white">
+            <span className="text-xs text-gray-500">Scale</span>
+            <span className="text-xs font-mono text-gray-300">
               {selectedDevice.scale}x
             </span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-slate-400">Corner Radius</span>
-            <span className="text-sm font-mono font-semibold text-white">
+            <span className="text-xs text-gray-500">Corner</span>
+            <span className="text-xs font-mono text-gray-300">
               {selectedDevice.cornerRadius}px
             </span>
           </div>
@@ -97,8 +111,8 @@ export function DeviceSelector() {
       )}
 
       {!selectedDevice && (
-        <div className="bg-slate-700 bg-opacity-50 rounded-lg p-4 text-center text-sm text-slate-400">
-          No device selected
+        <div className="bg-gray-900 rounded-lg p-4 text-center text-xs text-gray-500 border border-gray-800">
+          Selecione um dispositivo
         </div>
       )}
     </div>

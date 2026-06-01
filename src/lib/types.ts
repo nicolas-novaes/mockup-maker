@@ -1,37 +1,3 @@
-// Easing functions
-export type EasingFunction =
-  | 'linear'
-  | 'easeIn'
-  | 'easeOut'
-  | 'easeInOut'
-  | 'easeInQuad'
-  | 'easeOutQuad'
-  | 'easeInOutQuad'
-  | 'easeInCubic'
-  | 'easeOutCubic'
-  | 'easeInOutCubic'
-  | 'easeInQuart'
-  | 'easeOutQuart'
-  | 'easeInOutQuart'
-  | 'easeInQuint'
-  | 'easeOutQuint'
-  | 'easeInOutQuint'
-  | 'easeInExpo'
-  | 'easeOutExpo'
-  | 'easeInOutExpo'
-  | 'easeInCirc'
-  | 'easeOutCirc'
-  | 'easeInOutCirc'
-  | 'easeInBack'
-  | 'easeOutBack'
-  | 'easeInOutBack'
-  | 'easeInElastic'
-  | 'easeOutElastic'
-  | 'easeInOutElastic'
-  | 'easeInBounce'
-  | 'easeOutBounce'
-  | 'easeInOutBounce';
-
 // Device specifications
 export interface Device {
   id: string;
@@ -51,6 +17,12 @@ export interface Device {
     width: number;
     height: number;
   };
+  modelUrl?: string; // URL to GLTF model file
+  screenMeshName?: string; // Name of the mesh that represents the screen (optional, for GLTF models)
+  screenMaterialName?: string; // Name of the material that represents the screen (fallback when mesh names are generic)
+  screenRotation?: number; // Degrees to rotate the texture (0, 90, 180, 270)
+  screenFlipX?: boolean; // Mirror the texture horizontally
+  initialRotation?: { x: number; y: number; z: number }; // Rotation applied to gltf.scene to face forward
 }
 
 // Screenshot
@@ -63,27 +35,12 @@ export interface Screenshot {
   uploadedAt: number;
 }
 
-// Keyframe for animation
-export interface Keyframe {
-  id: string;
-  time: number; // milliseconds
-  position?: { x: number; y: number; z: number };
-  rotation?: { x: number; y: number; z: number };
-  scale?: { x: number; y: number; z: number };
-  opacity?: number;
-  easing?: EasingFunction;
-}
-
-// Animation configuration
-export interface Animation {
-  id: string;
-  templateId: string;
-  name: string;
-  duration: number; // milliseconds
-  keyframes: Keyframe[];
-  loop: boolean;
-  autoPlay: boolean;
-}
+// Background config
+export type BackgroundConfig =
+  | { type: 'solid'; color: string }
+  | { type: 'gradient'; gradientType: 'linear' | 'radial'; colorStart: string; colorEnd: string; angle: number; centerX: number; centerY: number }
+  | { type: 'image'; dataURL: string }
+  | { type: 'transparent' };
 
 // Export settings
 export interface ExportSettings {
@@ -96,17 +53,4 @@ export interface ExportSettings {
   loop: boolean;
   codec?: string;
   bitrate?: number;
-}
-
-// Animation template
-export interface AnimationTemplate {
-  id: string;
-  name: string;
-  displayName: string;
-  description: string;
-  category: string;
-  defaultDuration: number;
-  defaultKeyframes: Omit<Keyframe, 'id'>[];
-  previewGif?: string;
-  tags: string[];
 }

@@ -3,64 +3,53 @@
 @tailwind utilities;
 
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  /* Neutral color palette - Dark mode (default) */
+  --bg-primary: #0f0f0f;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #262626;
+  --bg-hover: #333333;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  --text-primary: #f5f5f5;
+  --text-secondary: #a3a3a3;
+  --text-tertiary: #737373;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
+  --border: #2d2d2d;
+  --border-light: #3a3a3a;
+
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --heading: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --mono: 'Fira Code', 'Courier New', monospace;
+
+  font: 14px/1.5 var(--sans);
+  color-scheme: dark;
+  color: var(--text-primary);
+  background: var(--bg-primary);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+/* Light mode overrides */
+:root.light {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --bg-tertiary: #e8e8e8;
+  --bg-hover: #dcdcdc;
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+  --text-primary: #171717;
+  --text-secondary: #525252;
+  --text-tertiary: #a3a3a3;
+
+  --border: #e0e0e0;
+  --border-light: #d4d4d4;
+
+  color-scheme: light;
 }
 
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
+  width: 100%;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -69,6 +58,42 @@
 body {
   @apply bg-gray-950 text-white;
 }
+
+.light body,
+:root.light body {
+  @apply bg-white text-gray-900;
+}
+
+/* Light mode Tailwind class overrides */
+:root.light .bg-gray-950 { background-color: #ffffff; }
+:root.light .bg-gray-900 { background-color: #f7f7f8; }
+:root.light .bg-gray-800 { background-color: #ebebed; }
+:root.light .bg-gray-700 { background-color: #dcdce0; }
+:root.light .border-gray-800 { border-color: #e4e4e7; }
+:root.light .border-gray-700 { border-color: #d4d4d8; }
+:root.light .border-gray-600 { border-color: #a1a1aa; }
+:root.light .text-gray-100 { color: #18181b; }
+:root.light .text-gray-200 { color: #27272a; }
+:root.light .text-gray-300 { color: #3f3f46; }
+:root.light .text-gray-400 { color: #52525b; }
+:root.light .text-gray-500 { color: #71717a; }
+:root.light .text-gray-600 { color: #a1a1aa; }
+:root.light .hover\:text-gray-200:hover { color: #18181b; }
+:root.light .hover\:bg-gray-800:hover { background-color: #e4e4e7; }
+:root.light .hover\:bg-gray-700:hover { background-color: #d4d4d8; }
+:root.light .hover\:border-gray-600:hover { border-color: #a1a1aa; }
+:root.light .hover\:text-gray-300:hover { color: #3f3f46; }
+:root.light .data-\[state\=on\]\:bg-gray-700[data-state="on"] { background-color: #dcdce0; }
+:root.light .data-\[state\=on\]\:border-gray-600[data-state="on"] { border-color: #a1a1aa; }
+:root.light .data-\[state\=on\]\:text-gray-100[data-state="on"] { color: #18181b; }
+:root.light .data-\[state\=active\]\:bg-gray-800[data-state="active"] { background-color: #e4e4e7; }
+:root.light .data-\[state\=active\]\:text-gray-100[data-state="active"] { color: #18181b; }
+:root.light .bg-black\/60 { background-color: rgba(255, 255, 255, 0.75); }
+:root.light .bg-gray-800\/50 { background-color: rgba(228, 228, 231, 0.5); }
+:root.light .text-green-400 { color: #16a34a; }
+:root.light .bg-green-400 { background-color: #16a34a; }
+:root.light .text-xs.text-gray-400 { color: #52525b; }
+:root.light .font-mono.text-gray-500 { color: #71717a; }
 
 canvas {
   display: block;

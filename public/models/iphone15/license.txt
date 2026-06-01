@@ -1,0 +1,11 @@
+Model Information:
+* title:	iPhone 15 | Azul
+* source:	https://sketchfab.com/3d-models/iphone-15-azul-34f166bb5c374426927e053e21d5a917
+* author:	VrStore (https://sketchfab.com/VrStore)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "iPhone 15 | Azul" (https://sketchfab.com/3d-models/iphone-15-azul-34f166bb5c374426927e053e21d5a917) by VrStore (https://sketchfab.com/VrStore) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

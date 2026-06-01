@@ -1,0 +1,11 @@
+Model Information:
+* title:	IPhone 17 Air
+* source:	https://sketchfab.com/3d-models/iphone-17-air-c7dc58ee98e94251804dacf9f28363ad
+* author:	Taufiq K (https://sketchfab.com/fqrhmn)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "IPhone 17 Air" (https://sketchfab.com/3d-models/iphone-17-air-c7dc58ee98e94251804dacf9f28363ad) by Taufiq K (https://sketchfab.com/fqrhmn) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

@@ -1,0 +1,11 @@
+Model Information:
+* title:	iPhone 13 Mini | White
+* source:	https://sketchfab.com/3d-models/iphone-13-mini-white-7d0a8b5f13e146ea8be2bcb68e4c7857
+* author:	VrStore (https://sketchfab.com/VrStore)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "iPhone 13 Mini | White" (https://sketchfab.com/3d-models/iphone-13-mini-white-7d0a8b5f13e146ea8be2bcb68e4c7857) by VrStore (https://sketchfab.com/VrStore) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

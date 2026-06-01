@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
 import { useEditorStore } from '../store/useEditorStore';
-import { validateScreenshot, validateImageDimensions } from '../lib/validation';
+import { validateScreenshot } from '../lib/validation';
 import type { Screenshot } from '../lib/types';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -28,13 +28,7 @@ export function Upload() {
         return;
       }
 
-      // Validate file size (max 10MB)
-      const maxSize = 10 * 1024 * 1024;
-      if (file.size > maxSize) {
-        setErrors(['File size must be less than 10MB']);
-        setIsLoading(false);
-        return;
-      }
+      // Note: File size validation removed - browser will handle large files appropriately
 
       // Read and validate image
       const reader = new FileReader();
@@ -43,18 +37,6 @@ export function Upload() {
         const img = new Image();
 
         img.onload = () => {
-          // Validate dimensions
-          const dimensionValidation = validateImageDimensions(img.width, img.height, {
-            minWidth: 400,
-            minHeight: 800,
-          });
-
-          if (!dimensionValidation.valid) {
-            setErrors(dimensionValidation.errors);
-            setIsLoading(false);
-            return;
-          }
-
           // Create screenshot object
           const screenshot: Screenshot = {
             id: uuidv4(),
@@ -125,18 +107,18 @@ export function Upload() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Mockup Animator</h1>
-          <p className="text-slate-400">Upload a screenshot to get started</p>
+    <div className="flex flex-col items-center justify-center w-screen h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-3 sm:p-4 overflow-hidden">
+      <div className="w-full max-w-2xl">
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2">Mockup Animator</h1>
+          <p className="text-xs sm:text-base text-slate-400">Upload a screenshot to get started</p>
         </div>
 
         {/* Drop Zone */}
         <div
           onDrop={handleDrop}
           onDragOver={handleDragOver}
-          className="border-2 border-dashed border-slate-400 rounded-lg p-8 mb-6 bg-slate-700 bg-opacity-50 hover:bg-opacity-75 transition-all cursor-pointer"
+          className="border-2 border-dashed border-slate-400 rounded-lg p-4 sm:p-8 mb-4 sm:mb-6 bg-slate-700 bg-opacity-50 hover:bg-opacity-75 transition-all cursor-pointer"
         >
           {preview ? (
             <div className="flex flex-col items-center">
@@ -220,8 +202,6 @@ export function Upload() {
           <p className="font-medium text-slate-300 mb-2">Requirements:</p>
           <ul className="space-y-1">
             <li>• PNG or JPG format</li>
-            <li>• Minimum 400x800px</li>
-            <li>• Maximum 10MB file size</li>
           </ul>
         </div>
       </div>
