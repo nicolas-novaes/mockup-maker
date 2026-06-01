@@ -286,13 +286,15 @@ export class RenderEngine {
       return;
     }
 
-    console.log('Attempting to load GLTF model from:', device.modelUrl);
+    const baseUrl = import.meta.env.BASE_URL;
+    const modelPath = `${baseUrl}${device.modelUrl.startsWith('/') ? device.modelUrl.slice(1) : device.modelUrl}`;
+    console.log('Attempting to load GLTF model from:', modelPath);
 
     this.isLoading = true;
     const loader = new GLTFLoader();
 
     loader.load(
-      device.modelUrl,
+      modelPath,
       (gltf) => {
         this.isLoading = false;
         console.log('✓ GLTF model loaded successfully. Meshes:', gltf.scene.children.length);
