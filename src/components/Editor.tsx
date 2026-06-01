@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
-import { Separator } from './ui/separator';
+import { Tabs, TabsList, TabsTrigger } from './ui/tabs';
 import { useEditorStore } from '../store/useEditorStore';
 import { isWebGLSupported } from '../lib/validation';
 import { Preview3D } from './Preview3D';
@@ -12,7 +11,6 @@ import { Settings2, Eye, Sparkles, Download } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 
 export function Editor() {
-  const screenshot = useEditorStore((s) => s.screenshot);
   const selectedDevice = useEditorStore((s) => s.selectedDevice);
   const [activePanel, setActivePanel] = useState('center');
   const [isMobile, setIsMobile] = useState(false);

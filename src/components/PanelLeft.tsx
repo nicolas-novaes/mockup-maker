@@ -1,13 +1,10 @@
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import { useEditorStore } from '../store/useEditorStore';
 import { Card } from './ui/card';
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from './ui/collapsible';
 import { Separator } from './ui/separator';
 import { DeviceSelector } from './DeviceSelector';
 import { ImageUploadPanel } from './ImageUploadPanel';
-import type { BackgroundConfig } from '../lib/types';
 import {
-  ChevronDown,
   Palette,
   Blend,
   ImageIcon,

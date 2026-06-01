@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 import { useEditorStore } from '../store/useEditorStore';
 import { Card } from './ui/card';
-import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
 import { Slider } from './ui/slider';
 import {

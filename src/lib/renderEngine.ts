@@ -42,7 +42,6 @@ export class RenderEngine {
   private animationFrameId: number | null = null;
 
   private pendingScreenshotCanvas: HTMLCanvasElement | null = null;
-  private pendingScreenshotDataURL: string | null = null;
   private currentScreenshotDataURL: string | null = null;
   private currentDevice: Device | null = null;
   private debugMode = false;
@@ -844,7 +843,6 @@ export class RenderEngine {
 
       if (!this.screenMesh) {
         console.warn('[RenderEngine] No screenMesh available, storing as pending');
-        this.pendingScreenshotDataURL = dataURL;
         return;
       }
 
@@ -1063,7 +1061,6 @@ export class RenderEngine {
   public clearScreenshotTexture(): void {
     this.currentScreenshotDataURL = null;
     this.pendingScreenshotCanvas = null;
-    this.pendingScreenshotDataURL = null;
 
     if (this.screenMesh) {
       const mat = this.screenMesh.material as THREE.MeshStandardMaterial;
