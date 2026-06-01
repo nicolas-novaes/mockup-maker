@@ -4,7 +4,7 @@ import path from 'path'
 
 // https://vite.dev/config/
 export default defineConfig(({ command }) => ({
-  base: command === 'build' ? '/nicolas-novaes-project/' : '/',
+  base: command === 'build' ? '/mockup-maker/' : '/',
   plugins: [react()],
   resolve: {
     alias: {

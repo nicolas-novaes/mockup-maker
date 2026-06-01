@@ -45,7 +45,7 @@ export class RenderEngine {
   private pendingScreenshotDataURL: string | null = null;
   private currentScreenshotDataURL: string | null = null;
   private currentDevice: Device | null = null;
-  private debugMode = true; // DEBUG: enabled to identify screen mesh
+  private debugMode = false;
 
   private directionalLight: THREE.DirectionalLight | null = null;
   private pointLight: THREE.PointLight | null = null;

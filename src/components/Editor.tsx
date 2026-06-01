@@ -37,9 +37,23 @@ export function Editor() {
       {/* Header */}
       <header className="border-b border-gray-800 bg-gray-950 px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
         <div className="min-w-0 flex items-center gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 32 32" fill="none" className="flex-shrink-0">
+            <rect x="8" y="3" width="16" height="26" rx="3.5" stroke="url(#logo-grad1)" strokeWidth="2" fill="none"/>
+            <rect x="10" y="6" width="12" height="18" rx="1" fill="url(#logo-grad2)" opacity="0.15"/>
+            <path d="M14 12 L20 16 L14 20 L15.5 16 Z" fill="url(#logo-grad1)"/>
+            <rect x="14" y="26" width="4" height="1" rx="0.5" fill="url(#logo-grad1)" opacity="0.6"/>
+            <defs>
+              <linearGradient id="logo-grad1" x1="8" y1="3" x2="24" y2="29">
+                <stop offset="0%" stopColor="#7c3aed"/>
+                <stop offset="100%" stopColor="#3b82f6"/>
+              </linearGradient>
+              <linearGradient id="logo-grad2" x1="10" y1="6" x2="22" y2="24">
+                <stop offset="0%" stopColor="#7c3aed"/>
+                <stop offset="100%" stopColor="#3b82f6"/>
+              </linearGradient>
+            </defs>
+          </svg>
           <h1 className="text-sm font-semibold text-gray-100 tracking-tight">Mockup Animator</h1>
-          <Separator orientation="vertical" className="h-4 bg-gray-800" />
-          <p className="text-xs text-gray-500 truncate">{screenshot ? 'Projeto ativo' : 'Novo projeto'}</p>
         </div>
         <div className="flex gap-3 flex-shrink-0 items-center">
           <ThemeToggle />
