@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { useEditorStore } from '../store/useEditorStore';
 import { Card } from './ui/card';
 import { Separator } from './ui/separator';
@@ -68,6 +68,82 @@ const CAMERA_PRESETS: CameraPreset[] = [
   { id: 'dynamic', label: 'Dinâmico', icon: <Wind className={ICON_SIZE} />, cameraAlpha: 0.7, cameraBeta: -0.2, modelRotationX: -0.15, modelRotationY: 0.25, modelRotationZ: -0.12 },
 ];
 
+function LightSphere({ azimuth, elevation, onChange }: {
+  azimuth: number;
+  elevation: number;
+  onChange: (azimuth: number, elevation: number) => void;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+
+  // Convert azimuth/elevation to dot position (x, y relative to center, normalized -1 to 1)
+  const azimuthRad = (azimuth * Math.PI) / 180;
+  const distance = 1 - elevation / 90; // 0 at center (90°), 1 at edge (0°)
+  const dotX = Math.cos(azimuthRad) * distance;
+  const dotY = -Math.sin(azimuthRad) * distance;
+
+  const updateFromPosition = (clientX: number, clientY: number) => {
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const radius = rect.width / 2;
+
+    let dx = (clientX - cx) / radius;
+    let dy = (clientY - cy) / radius;
+
+    // Clamp to circle
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist > 1) { dx /= dist; dy /= dist; }
+
+    const newAzimuth = ((Math.atan2(-dy, dx) * 180) / Math.PI + 360) % 360;
+    const newElevation = Math.round((1 - Math.min(dist, 1)) * 90);
+    onChange(Math.round(newAzimuth), newElevation);
+  };
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    isDragging.current = true;
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    updateFromPosition(e.clientX, e.clientY);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isDragging.current) return;
+    updateFromPosition(e.clientX, e.clientY);
+  };
+
+  const handlePointerUp = () => {
+    isDragging.current = false;
+  };
+
+  // Highlight gradient position (follows the dot)
+  const highlightX = ((dotX + 1) / 2) * 100;
+  const highlightY = ((dotY + 1) / 2) * 100;
+
+  return (
+    <div
+      ref={containerRef}
+      className="w-28 h-28 mx-auto rounded-full relative cursor-pointer select-none touch-none"
+      style={{
+        background: `radial-gradient(circle at ${highlightX}% ${highlightY}%, rgba(255,255,255,0.25) 0%, rgba(30,30,30,1) 60%, rgba(10,10,10,1) 100%)`,
+      }}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+    >
+      {/* Light dot */}
+      <div
+        className="absolute w-3 h-3 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.8)] border border-amber-300"
+        style={{
+          left: `calc(50% + ${dotX * 50}% - 6px)`,
+          top: `calc(50% + ${dotY * 50}% - 6px)`,
+        }}
+      />
+    </div>
+  );
+}
+
 export function PanelRight({ className }: PanelRightProps) {
   const lightConfig = useEditorStore((state) => state.lightConfig);
   const setLightConfig = useEditorStore((state) => state.setLightConfig);
@@ -91,6 +167,11 @@ export function PanelRight({ className }: PanelRightProps) {
           <Sun className="h-3.5 w-3.5" />
           Lighting
         </h3>
+        <LightSphere
+          azimuth={lightConfig.azimuth}
+          elevation={lightConfig.elevation}
+          onChange={(az, el) => setLightConfig({ azimuth: az, elevation: el })}
+        />
         <div className="space-y-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
