@@ -12,6 +12,8 @@ export function Preview3D() {
   const lightConfig = useEditorStore((state) => state.lightConfig);
   const backgroundConfig = useEditorStore((state) => state.backgroundConfig);
   const setRenderEngine = useEditorStore((state) => state.setRenderEngine);
+  const screenshotRotation = useEditorStore((state) => state.screenshotRotation);
+  const screenshotFlipped = useEditorStore((state) => state.screenshotFlipped);
 
   // Initialize render engine
   useEffect(() => {
@@ -104,6 +106,12 @@ export function Preview3D() {
       renderEngineRef.current.clearScreenshotTexture();
     }
   }, [screenshot]);
+
+  // Sync screenshot rotation/flip
+  useEffect(() => {
+    if (!renderEngineRef.current) return;
+    renderEngineRef.current.setScreenshotTransform(screenshotRotation, screenshotFlipped);
+  }, [screenshotRotation, screenshotFlipped]);
 
   // Sync light config
   useEffect(() => {

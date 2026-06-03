@@ -22,12 +22,18 @@ export interface EditorState {
     shadowEnabled: boolean;
   };
 
+  // Screenshot transform
+  screenshotRotation: number; // 0, 90, 180, 270
+  screenshotFlipped: boolean;
+
   // Background Config
   backgroundConfig: BackgroundConfig;
 
   // Actions
   setScreenshot: (screenshot: Screenshot) => void;
   clearScreenshot: () => void;
+  rotateScreenshot: () => void;
+  flipScreenshot: () => void;
   selectDevice: (device: Device) => void;
   updateExportSettings: (settings: Partial<ExportSettings>) => void;
   setLightConfig: (config: Partial<EditorState['lightConfig']>) => void;
@@ -66,6 +72,8 @@ export const useEditorStore = create<EditorState>((set) => ({
   selectedDevice: getDeviceById('iphone16') || null,
   exportSettings: defaultExportSettings,
   lightConfig: defaultLightConfig,
+  screenshotRotation: 0,
+  screenshotFlipped: false,
   backgroundConfig: defaultBackgroundConfig,
   renderEngine: null,
 
@@ -74,7 +82,13 @@ export const useEditorStore = create<EditorState>((set) => ({
     set({ screenshot }),
 
   clearScreenshot: () =>
-    set({ screenshot: null }),
+    set({ screenshot: null, screenshotRotation: 0, screenshotFlipped: false }),
+
+  rotateScreenshot: () =>
+    set((state) => ({ screenshotRotation: (state.screenshotRotation + 90) % 360 })),
+
+  flipScreenshot: () =>
+    set((state) => ({ screenshotFlipped: !state.screenshotFlipped })),
 
   selectDevice: (device: Device) =>
     set({ selectedDevice: device }),

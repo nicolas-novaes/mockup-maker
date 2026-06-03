@@ -46,6 +46,8 @@ export class RenderEngine {
   private currentDevice: Device | null = null;
   private debugMode = false;
 
+  private userScreenRotation = 0;
+  private userScreenFlip = false;
   private directionalLight: THREE.DirectionalLight | null = null;
   private pointLight: THREE.PointLight | null = null;
   private shadowGroundPlane: THREE.Mesh | null = null;
@@ -159,6 +161,17 @@ export class RenderEngine {
   public setLightIntensity(intensity: number): void {
     if (this.directionalLight) {
       this.directionalLight.intensity = intensity;
+    }
+  }
+
+  /**
+   * Set user screenshot transform (rotation + flip) and re-apply
+   */
+  public setScreenshotTransform(rotation: number, flipped: boolean): void {
+    this.userScreenRotation = rotation;
+    this.userScreenFlip = flipped;
+    if (this.currentScreenshotDataURL) {
+      this.loadScreenshotFromDataURL(this.currentScreenshotDataURL);
     }
   }
 
@@ -961,6 +974,24 @@ export class RenderEngine {
 
       const rotation = this.currentDevice?.screenRotation || 0;
 
+      // Apply user rotation/flip to source image first
+      const userRot = this.userScreenRotation;
+      const userFlip = this.userScreenFlip;
+      let srcImg: HTMLImageElement | HTMLCanvasElement = img;
+
+      if (userRot !== 0 || userFlip) {
+        const tmpCanvas = document.createElement('canvas');
+        const isUserRotated90 = (userRot === 90 || userRot === 270);
+        tmpCanvas.width = isUserRotated90 ? img.height : img.width;
+        tmpCanvas.height = isUserRotated90 ? img.width : img.height;
+        const tmpCtx = tmpCanvas.getContext('2d')!;
+        tmpCtx.translate(tmpCanvas.width / 2, tmpCanvas.height / 2);
+        if (userFlip) tmpCtx.scale(-1, 1);
+        tmpCtx.rotate((userRot * Math.PI) / 180);
+        tmpCtx.drawImage(img, -img.width / 2, -img.height / 2);
+        srcImg = tmpCanvas as unknown as HTMLImageElement;
+      }
+
       const canvas = document.createElement('canvas');
 
       if (rotation === 90 || rotation === 270) {
@@ -983,7 +1014,7 @@ export class RenderEngine {
         // After rotation, the drawing space is effectively portrait (cH x cW)
         const drawSpaceW = cH;
         const drawSpaceH = cW;
-        const imgAspect = img.width / img.height;
+        const imgAspect = srcImg.width / srcImg.height;
         const spaceAspect = drawSpaceW / drawSpaceH;
 
         let drawWidth: number, drawHeight: number, offsetX = 0, offsetY = 0;
@@ -997,7 +1028,7 @@ export class RenderEngine {
           offsetX = (drawSpaceW - drawWidth) / 2;
         }
 
-        ctx.drawImage(img, -drawSpaceW / 2 + offsetX, -drawSpaceH / 2 + offsetY, drawWidth, drawHeight);
+        ctx.drawImage(srcImg, -drawSpaceW / 2 + offsetX, -drawSpaceH / 2 + offsetY, drawWidth, drawHeight);
       } else {
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
@@ -1023,7 +1054,7 @@ export class RenderEngine {
         ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
         // Draw image to fill the entire screen
-        ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight);
+        ctx.drawImage(srcImg, 0, 0, canvasWidth, canvasHeight);
       }
 
       console.log('[RenderEngine] Canvas ready, rotation:', rotation);

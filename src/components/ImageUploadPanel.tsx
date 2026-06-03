@@ -3,7 +3,7 @@ import { useEditorStore } from '../store/useEditorStore';
 import { validateScreenshot } from '../lib/validation';
 import type { Screenshot } from '../lib/types';
 import { v4 as uuidv4 } from 'uuid';
-import { Upload, AlertCircle, X, Link, Key, LogOut, Loader2 } from 'lucide-react';
+import { Upload, AlertCircle, X, Link, Key, LogOut, Loader2, RotateCw, FlipHorizontal } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
@@ -20,6 +20,8 @@ export function ImageUploadPanel() {
   const setScreenshot = useEditorStore((state) => state.setScreenshot);
   const screenshot = useEditorStore((state) => state.screenshot);
   const clearScreenshot = useEditorStore((state) => state.clearScreenshot);
+  const rotateScreenshot = useEditorStore((state) => state.rotateScreenshot);
+  const flipScreenshot = useEditorStore((state) => state.flipScreenshot);
 
   const [preview, setPreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
@@ -218,32 +220,50 @@ export function ImageUploadPanel() {
 
         <TabsContent value="upload" className="mt-3">
           {(screenshot || preview) ? (
-            <div className="relative overflow-hidden rounded-lg border border-gray-700 bg-gray-900 aspect-video">
-              <img
-                src={preview || screenshot?.data}
-                alt="Screenshot preview"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-end justify-center p-4 gap-4">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleChangeImage}
-                  disabled={isLoading}
-                  className="text-xs bg-gray-900/80 border-gray-600"
+            <div className="space-y-2">
+              <div className="relative overflow-hidden rounded-lg border border-gray-700 bg-gray-900 aspect-video">
+                <img
+                  src={preview || screenshot?.data}
+                  alt="Screenshot preview"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-end justify-center p-4 gap-4">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleChangeImage}
+                    disabled={isLoading}
+                    className="text-xs bg-gray-900/80 border-gray-600"
+                  >
+                    <Upload className="w-3.5 h-3.5 mr-1.5" />
+                    Trocar
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleClear}
+                    disabled={isLoading}
+                    className="text-xs text-red-400 hover:text-red-300 bg-gray-900/80 border-gray-600"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={rotateScreenshot}
+                  className="flex-1 flex items-center justify-center gap-1.5 h-7 rounded-md bg-gray-800 border border-gray-700 text-xs text-gray-300 hover:bg-gray-700 hover:text-gray-100 transition-colors"
                 >
-                  <Upload className="w-3.5 h-3.5 mr-1.5" />
-                  Trocar
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleClear}
-                  disabled={isLoading}
-                  className="text-xs text-red-400 hover:text-red-300 bg-gray-900/80 border-gray-600"
+                  <RotateCw className="w-3.5 h-3.5" />
+                  Rotacionar
+                </button>
+                <button
+                  onClick={flipScreenshot}
+                  className="flex-1 flex items-center justify-center gap-1.5 h-7 rounded-md bg-gray-800 border border-gray-700 text-xs text-gray-300 hover:bg-gray-700 hover:text-gray-100 transition-colors"
                 >
-                  <X className="w-3.5 h-3.5" />
-                </Button>
+                  <FlipHorizontal className="w-3.5 h-3.5" />
+                  Espelhar
+                </button>
               </div>
             </div>
           ) : (
