@@ -19,6 +19,7 @@ export interface EditorState {
     azimuth: number;
     elevation: number;
     intensity: number;
+    shadowEnabled: boolean;
   };
 
   // Background Config
@@ -51,6 +52,7 @@ const defaultLightConfig = {
   azimuth: 45,
   elevation: 45,
   intensity: 1.5,
+  shadowEnabled: true,
 };
 
 const defaultBackgroundConfig: BackgroundConfig = {

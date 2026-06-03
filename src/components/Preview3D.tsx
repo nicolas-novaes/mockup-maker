@@ -111,6 +111,7 @@ export function Preview3D() {
 
     renderEngineRef.current.setLightPosition(lightConfig.azimuth, lightConfig.elevation);
     renderEngineRef.current.setLightIntensity(lightConfig.intensity);
+    renderEngineRef.current.setShadowEnabled(lightConfig.shadowEnabled);
   }, [lightConfig]);
 
   // Sync background config

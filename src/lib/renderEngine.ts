@@ -48,6 +48,7 @@ export class RenderEngine {
 
   private directionalLight: THREE.DirectionalLight | null = null;
   private pointLight: THREE.PointLight | null = null;
+  private shadowGroundPlane: THREE.Mesh | null = null;
 
   constructor(canvas: HTMLCanvasElement, _options: RenderEngineOptions = {}) {
     console.log('%c[RenderEngine] Constructor called', 'color: blue; font-weight: bold;');
@@ -61,6 +62,7 @@ export class RenderEngine {
     this.renderer.setSize(width, height);
     this.renderer.setClearColor(0x08080c, 1.0);
     this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     console.log('Renderer created, size:', width, 'x', height);
 
@@ -110,14 +112,18 @@ export class RenderEngine {
 
     // Directional light
     this.directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
-    this.directionalLight.position.set(300, 300, 300);
-    this.directionalLight.castShadow = true;
+    this.directionalLight.position.set(600, 600, 600);
+    this.directionalLight.target.position.set(0, 0, 0);
     this.scene.add(this.directionalLight);
+    this.scene.add(this.directionalLight.target);
 
     // Point light para fill
     this.pointLight = new THREE.PointLight(0xffffff, 0.8);
     this.pointLight.position.set(-300, -300, 300);
     this.scene.add(this.pointLight);
+
+    // Shadow setup
+    this.setupShadow();
 
     console.log('Lighting setup complete');
   }
@@ -128,7 +134,7 @@ export class RenderEngine {
    * @param elevation - vertical angle in degrees (0-90)
    * @param distance - distance from origin (default 400)
    */
-  public setLightPosition(azimuth: number, elevation: number, distance = 400): void {
+  public setLightPosition(azimuth: number, elevation: number, distance = 800): void {
     const azRad = (azimuth * Math.PI) / 180;
     const elRad = (elevation * Math.PI) / 180;
 
@@ -144,6 +150,7 @@ export class RenderEngine {
     if (this.pointLight) {
       this.pointLight.position.set(-x * 0.7, -y * 0.5, z * 0.8);
     }
+
   }
 
   /**
@@ -152,6 +159,15 @@ export class RenderEngine {
   public setLightIntensity(intensity: number): void {
     if (this.directionalLight) {
       this.directionalLight.intensity = intensity;
+    }
+  }
+
+  public setShadowEnabled(enabled: boolean): void {
+    if (this.shadowGroundPlane) {
+      this.shadowGroundPlane.visible = enabled;
+    }
+    if (this.directionalLight) {
+      this.directionalLight.castShadow = enabled;
     }
   }
 
@@ -302,10 +318,12 @@ export class RenderEngine {
         // Adicionar modelo à scene
         this.phoneContainer.add(gltf.scene);
 
+
         // Apply initial rotation to standardize model orientation
         if (device.initialRotation) {
           gltf.scene.rotation.set(device.initialRotation.x, device.initialRotation.y, device.initialRotation.z);
         }
+
 
         // Recursively find all meshes in the scene
         const meshes: THREE.Mesh[] = [];
@@ -571,6 +589,7 @@ export class RenderEngine {
     this.camera.lookAt(0, 0, 0);
     this.initialCameraDistance = distance;
 
+
     console.log('Device setup complete. Phone container meshes:', this.phoneContainer.children.length);
   }
 
@@ -794,11 +813,92 @@ export class RenderEngine {
    */
   private startRenderLoop(): void {
     const render = () => {
+      this.updateShadow();
       this.renderer.render(this.scene, this.camera);
       this.animationFrameId = requestAnimationFrame(render);
     };
     render();
     console.log('Render loop started');
+  }
+
+  private setupShadow(): void {
+    // Configure directional light for shadow casting
+    if (this.directionalLight) {
+      this.directionalLight.castShadow = true;
+      this.directionalLight.shadow.mapSize.width = 2048;
+      this.directionalLight.shadow.mapSize.height = 2048;
+      this.directionalLight.shadow.bias = -0.001;
+      this.directionalLight.shadow.normalBias = 0.02;
+      this.directionalLight.shadow.radius = 4;
+      // Initial frustum (will be updated dynamically)
+      this.directionalLight.shadow.camera.left = -500;
+      this.directionalLight.shadow.camera.right = 500;
+      this.directionalLight.shadow.camera.top = 500;
+      this.directionalLight.shadow.camera.bottom = -500;
+      this.directionalLight.shadow.camera.near = 0.1;
+      this.directionalLight.shadow.camera.far = 3000;
+      this.directionalLight.shadow.camera.updateProjectionMatrix();
+    }
+
+    // Ground plane that receives shadows — large, positioned at y=0 initially
+    const groundGeo = new THREE.PlaneGeometry(5000, 5000);
+    const groundMat = new THREE.ShadowMaterial({ opacity: 0.35 });
+    this.shadowGroundPlane = new THREE.Mesh(groundGeo, groundMat);
+    this.shadowGroundPlane.rotation.x = -Math.PI / 2;
+    this.shadowGroundPlane.position.y = 0;
+    this.shadowGroundPlane.receiveShadow = true;
+    this.scene.add(this.shadowGroundPlane);
+  }
+
+  private updateShadow(): void {
+    if (!this.shadowGroundPlane || !this.directionalLight) return;
+    if (this.phoneContainer.children.length === 0) {
+      this.shadowGroundPlane.visible = false;
+      return;
+    }
+    this.shadowGroundPlane.visible = true;
+
+    // Get model bounds
+    this.phoneContainer.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(this.phoneContainer);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+
+    // Enable castShadow on all model meshes
+    this.phoneContainer.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        child.castShadow = true;
+      }
+    });
+
+    // Position ground plane at model base
+    this.shadowGroundPlane.position.y = box.min.y;
+
+    // Point light target at model center so shadow camera looks at model
+    this.directionalLight.target.position.set(center.x, center.y, center.z);
+    this.directionalLight.target.updateMatrixWorld();
+
+    // Configure shadow camera frustum based on light distance and model size
+    const shadow = this.directionalLight.shadow;
+    const lightDist = this.directionalLight.position.distanceTo(center);
+    const frustumSize = maxDim * 2;
+    shadow.camera.left = -frustumSize;
+    shadow.camera.right = frustumSize;
+    shadow.camera.top = frustumSize;
+    shadow.camera.bottom = -frustumSize;
+    shadow.camera.near = lightDist - maxDim * 2;
+    shadow.camera.far = lightDist + maxDim * 2;
+    shadow.camera.updateProjectionMatrix();
+
+    // Shadow softness based on light elevation
+    const lightDir = this.directionalLight.position.clone().normalize();
+    const elevation = Math.max(0.1, lightDir.y);
+    shadow.radius = 3 + (1 - elevation) * 5;
+
+    // Shadow opacity based on intensity
+    const mat = this.shadowGroundPlane.material as THREE.ShadowMaterial;
+    mat.opacity = Math.min(0.4, this.directionalLight.intensity * 0.16);
   }
 
   /**

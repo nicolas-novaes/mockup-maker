@@ -215,6 +215,21 @@ export function PanelRight({ className }: PanelRightProps) {
               className="[&_[data-slot=slider-track]]:bg-gray-800 [&_[data-slot=slider-range]]:bg-gray-500 [&_[data-slot=slider-thumb]]:bg-gray-300 [&_[data-slot=slider-thumb]]:border-gray-600"
             />
           </div>
+          <div className="flex items-center justify-between pt-1">
+            <span className="text-xs text-gray-400">Shadow</span>
+            <button
+              onClick={() => setLightConfig({ shadowEnabled: !lightConfig.shadowEnabled })}
+              className={`relative w-9 h-5 rounded-full transition-colors ${
+                lightConfig.shadowEnabled ? 'bg-gray-500' : 'bg-gray-800'
+              }`}
+            >
+              <span
+                className={`absolute top-[3px] w-3.5 h-3.5 rounded-full bg-gray-200 transition-all ${
+                  lightConfig.shadowEnabled ? 'left-[calc(100%-17px)]' : 'left-[3px]'
+                }`}
+              />
+            </button>
+          </div>
         </div>
       </div>
 
