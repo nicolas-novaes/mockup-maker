@@ -38,6 +38,7 @@ export class RenderEngine {
   private cameraTarget = { x: 0, y: 0, z: 0 };
   private isSpaceDown = false;
   private initialCameraDistance = 0;
+  private currentCameraDistance = 0;
   private isLoading = false;
   private animationFrameId: number | null = null;
 
@@ -51,6 +52,7 @@ export class RenderEngine {
   private directionalLight: THREE.DirectionalLight | null = null;
   private pointLight: THREE.PointLight | null = null;
   private shadowGroundPlane: THREE.Mesh | null = null;
+  private abortController = new AbortController();
 
   constructor(canvas: HTMLCanvasElement, _options: RenderEngineOptions = {}) {
     console.log('%c[RenderEngine] Constructor called', 'color: blue; font-weight: bold;');
@@ -61,6 +63,7 @@ export class RenderEngine {
 
     // Criar renderer Three.js
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.setSize(width, height);
     this.renderer.setClearColor(0x08080c, 1.0);
     this.renderer.shadowMap.enabled = true;
@@ -96,7 +99,7 @@ export class RenderEngine {
     this.setupDebugMode();
 
     // Handle resize
-    window.addEventListener('resize', () => this.handleResize());
+    window.addEventListener('resize', () => this.handleResize(), { signal: this.abortController.signal });
 
     // Iniciar render loop
     this.startRenderLoop();
@@ -532,6 +535,8 @@ export class RenderEngine {
         // Posicionar câmera
         this.camera.position.set(0, 0, cameraDistance);
         this.camera.lookAt(0, 0, 0);
+        this.initialCameraDistance = cameraDistance;
+        this.currentCameraDistance = cameraDistance;
 
         // Atualizar near/far planes
         this.camera.near = cameraDistance / 100;
@@ -601,6 +606,7 @@ export class RenderEngine {
     this.camera.position.set(0, 0, distance);
     this.camera.lookAt(0, 0, 0);
     this.initialCameraDistance = distance;
+    this.currentCameraDistance = distance;
 
 
     console.log('Device setup complete. Phone container meshes:', this.phoneContainer.children.length);
@@ -654,6 +660,8 @@ export class RenderEngine {
    * Setup mouse interaction
    */
   private setupMouseInteraction(): void {
+    const signal = this.abortController.signal;
+
     this.canvas.addEventListener('pointerdown', (e) => {
       if (e.pointerType === 'touch') {
         this.activeTouches.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -671,12 +679,12 @@ export class RenderEngine {
         this.isDragging = true;
       }
       this.previousMousePosition = { x: e.clientX, y: e.clientY };
-    });
+    }, { signal });
 
     // Prevent default middle-click behavior (auto-scroll)
     this.canvas.addEventListener('auxclick', (e) => {
       if (e.button === 1) e.preventDefault();
-    });
+    }, { signal });
 
     this.canvas.addEventListener('pointermove', (e) => {
       if (e.pointerType === 'touch') {
@@ -721,7 +729,7 @@ export class RenderEngine {
       }
 
       this.previousMousePosition = { x: e.clientX, y: e.clientY };
-    });
+    }, { signal });
 
     this.canvas.addEventListener('pointerup', (e) => {
       this.isDragging = false;
@@ -730,7 +738,7 @@ export class RenderEngine {
       if (this.activeTouches.size < 2) {
         this.isTwoFingerDragging = false;
       }
-    });
+    }, { signal });
 
     this.canvas.addEventListener('pointerleave', (e) => {
       this.isDragging = false;
@@ -739,27 +747,32 @@ export class RenderEngine {
       if (this.activeTouches.size < 2) {
         this.isTwoFingerDragging = false;
       }
-    });
+    }, { signal });
 
     // Zoom with scroll/pinch
     this.canvas.addEventListener('wheel', (e) => {
       e.preventDefault();
+      // Skip zoom if device hasn't loaded yet (initialCameraDistance not set)
+      if (!this.initialCameraDistance) return;
+
       const zoomSpeed = 0.1;
       const target = new THREE.Vector3(this.cameraTarget.x, this.cameraTarget.y, this.cameraTarget.z);
       const distance = this.camera.position.distanceTo(target);
       const delta = e.deltaY > 0 ? 1 + zoomSpeed : 1 - zoomSpeed;
-      const newDistance = distance * delta;
+      let newDistance = distance * delta;
 
-      // Limit zoom range
-      const refDistance = this.initialCameraDistance || distance;
-      const minDistance = refDistance * 0.1;
-      const maxDistance = refDistance * 5;
-      if (newDistance < minDistance || newDistance > maxDistance) return;
+      // Limit zoom range: initial position is max zoom out, user can only zoom in
+      const minDistance = this.initialCameraDistance * 0.1;
+      const maxDistance = this.initialCameraDistance;
+      newDistance = Math.max(minDistance, Math.min(maxDistance, newDistance));
 
+      if (Math.abs(newDistance - distance) < 0.01) return;
+
+      this.currentCameraDistance = newDistance;
       const direction = new THREE.Vector3();
       direction.subVectors(this.camera.position, target).normalize();
       this.camera.position.copy(target).addScaledVector(direction, newDistance);
-    }, { passive: false });
+    }, { passive: false, signal });
 
     // Keyboard: space for pan, X for reset
     window.addEventListener('keydown', (e) => {
@@ -770,13 +783,13 @@ export class RenderEngine {
       if (e.code === 'KeyX') {
         this.resetCamera();
       }
-    });
+    }, { signal });
 
     window.addEventListener('keyup', (e) => {
       if (e.code === 'Space') {
         this.isSpaceDown = false;
       }
-    });
+    }, { signal });
   }
 
   /**
@@ -787,6 +800,7 @@ export class RenderEngine {
     this.cameraRotation.beta = 0;
     this.cameraTarget = { x: 0, y: 0, z: 0 };
     this.phoneContainer.rotation.set(0, 0, 0);
+    this.currentCameraDistance = this.initialCameraDistance;
     this.camera.position.set(0, 0, this.initialCameraDistance);
     this.camera.lookAt(0, 0, 0);
   }
@@ -807,7 +821,7 @@ export class RenderEngine {
    */
   private updateCameraPosition(): void {
     const target = new THREE.Vector3(this.cameraTarget.x, this.cameraTarget.y, this.cameraTarget.z);
-    const distance = this.camera.position.distanceTo(target);
+    const distance = this.currentCameraDistance || this.camera.position.distanceTo(target);
 
     const x = Math.sin(this.cameraRotation.alpha) * Math.cos(this.cameraRotation.beta) * distance;
     const y = Math.sin(this.cameraRotation.beta) * distance;
@@ -1072,7 +1086,9 @@ export class RenderEngine {
 
     const texture = new THREE.CanvasTexture(canvas);
     texture.magFilter = THREE.LinearFilter;
-    texture.minFilter = THREE.LinearFilter;
+    texture.minFilter = THREE.LinearMipmapLinearFilter;
+    texture.generateMipmaps = true;
+    texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
     texture.colorSpace = THREE.SRGBColorSpace;
 
     // Use flipY = false — we'll handle orientation via planar UV projection
@@ -1217,13 +1233,22 @@ export class RenderEngine {
    * Export the current scene as an image at the specified resolution
    */
   public exportImage(width: number, height: number, format: 'png' | 'jpeg', transparent = false): string {
-    const origWidth = this.canvas.width;
-    const origHeight = this.canvas.height;
+    // Save original state using CSS dimensions (not pixel dimensions which include devicePixelRatio)
+    const origCssWidth = this.canvas.clientWidth || this.canvas.width;
+    const origCssHeight = this.canvas.clientHeight || this.canvas.height;
     const origBackground = this.scene.background;
     const origClearAlpha = this.renderer.getClearAlpha();
+    const origCameraPos = this.camera.position.clone();
+    const origCameraLookAt = new THREE.Vector3(this.cameraTarget.x, this.cameraTarget.y, this.cameraTarget.z);
+    const origPixelRatio = this.renderer.getPixelRatio();
+
+    // Force pixel ratio 1 for consistent export quality
+    this.renderer.setPixelRatio(1);
 
     // Set up transparent background if requested
     if (transparent && format === 'png') {
+      // Fit camera to model so it fills the frame at max quality
+      this.fitCameraToModel(width / height);
       this.scene.background = null;
       this.renderer.setClearAlpha(0);
     }
@@ -1233,20 +1258,123 @@ export class RenderEngine {
     this.camera.updateProjectionMatrix();
     this.renderer.render(this.scene, this.camera);
 
-    const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
-    const dataURL = this.renderer.domElement.toDataURL(mimeType, 0.95);
+    let dataURL: string;
+
+    if (transparent && format === 'png') {
+      // Crop to content bounding box (model + shadow only)
+      dataURL = this.cropTransparentExport(width, height);
+    } else {
+      const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
+      dataURL = this.renderer.domElement.toDataURL(mimeType, 0.95);
+    }
 
     // Restore original state
+    this.camera.position.copy(origCameraPos);
+    this.camera.lookAt(origCameraLookAt);
+    this.renderer.setPixelRatio(origPixelRatio);
     if (transparent && format === 'png') {
       this.scene.background = origBackground;
       this.renderer.setClearAlpha(origClearAlpha);
     }
-    this.renderer.setSize(origWidth, origHeight);
-    this.camera.aspect = origWidth / origHeight;
+    this.renderer.setSize(origCssWidth, origCssHeight);
+    this.camera.aspect = origCssWidth / origCssHeight;
     this.camera.updateProjectionMatrix();
     this.renderer.render(this.scene, this.camera);
 
     return dataURL;
+  }
+
+  /**
+   * Position camera to fit the phone model tightly in the frame
+   */
+  private fitCameraToModel(aspect: number): void {
+    // Compute bounding box of the phone model (excluding shadow ground plane)
+    const box = new THREE.Box3();
+    this.phoneContainer.traverse((child) => {
+      if (child instanceof THREE.Mesh && child !== this.shadowGroundPlane) {
+        box.expandByObject(child);
+      }
+    });
+
+    if (box.isEmpty()) return;
+
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+
+    // Use the diagonal of the bounding box to account for rotation
+    const diagonal = Math.sqrt(size.x * size.x + size.y * size.y + size.z * size.z);
+    const fov = this.camera.fov * (Math.PI / 180);
+
+    // Calculate distance needed to fit the model with generous padding (40%)
+    const padding = 1.4;
+    let distance: number;
+    if (aspect >= 1) {
+      // Landscape: height is limiting
+      distance = (diagonal * padding) / (2 * Math.tan(fov / 2));
+    } else {
+      // Portrait: width is limiting
+      distance = (diagonal * padding) / (2 * Math.tan(fov / 2) * aspect);
+    }
+
+    // Move camera to the computed distance, keeping the same direction
+    const target = new THREE.Vector3(this.cameraTarget.x, this.cameraTarget.y, this.cameraTarget.z);
+    const direction = new THREE.Vector3().subVectors(this.camera.position, target).normalize();
+    this.camera.position.copy(center).addScaledVector(direction, distance);
+  }
+
+  /**
+   * Crop transparent export to the bounding box of visible pixels (model + shadow)
+   */
+  private cropTransparentExport(width: number, height: number): string {
+    const ctx = document.createElement('canvas').getContext('2d')!;
+    ctx.canvas.width = width;
+    ctx.canvas.height = height;
+    ctx.drawImage(this.renderer.domElement, 0, 0);
+
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const { data } = imageData;
+
+    // Find bounding box of non-transparent pixels
+    let minX = width, minY = height, maxX = 0, maxY = 0;
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const alpha = data[(y * width + x) * 4 + 3];
+        if (alpha > 0) {
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+        }
+      }
+    }
+
+    // If no visible pixels, return full canvas
+    if (maxX < minX || maxY < minY) {
+      return this.renderer.domElement.toDataURL('image/png');
+    }
+
+    // Add small padding (2% of the crop dimensions)
+    const cropW = maxX - minX + 1;
+    const cropH = maxY - minY + 1;
+    const padX = Math.round(cropW * 0.02);
+    const padY = Math.round(cropH * 0.02);
+
+    const x0 = Math.max(0, minX - padX);
+    const y0 = Math.max(0, minY - padY);
+    const x1 = Math.min(width, maxX + 1 + padX);
+    const y1 = Math.min(height, maxY + 1 + padY);
+
+    const finalW = x1 - x0;
+    const finalH = y1 - y0;
+
+    // Create cropped canvas
+    const cropCanvas = document.createElement('canvas');
+    cropCanvas.width = finalW;
+    cropCanvas.height = finalH;
+    const cropCtx = cropCanvas.getContext('2d')!;
+    cropCtx.drawImage(ctx.canvas, x0, y0, finalW, finalH, 0, 0, finalW, finalH);
+
+    return cropCanvas.toDataURL('image/png');
   }
 
   /**
@@ -1266,7 +1394,7 @@ export class RenderEngine {
     }
 
     this.renderer.dispose();
-    window.removeEventListener('resize', () => this.handleResize());
+    this.abortController.abort();
   }
 
   /**
@@ -1280,7 +1408,7 @@ export class RenderEngine {
    * Setup debug mode: click on meshes to identify them
    */
   private setupDebugMode(): void {
-    this.canvas.addEventListener('click', (event) => {
+    this.canvas.addEventListener('click', (event: MouseEvent) => {
       if (!this.debugMode) return;
 
       // Get click position
@@ -1328,7 +1456,7 @@ export class RenderEngine {
           }
         }, 200);
       }
-    });
+    }, { signal: this.abortController.signal });
 
     // Debug mode can be enabled manually in console if needed
     // console.log('✅ DEBUG MODE READY - Click on the phone to identify meshes!');

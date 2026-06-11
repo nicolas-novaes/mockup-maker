@@ -8,19 +8,14 @@ interface ExportPanelProps {
 }
 
 type Format = 'png' | 'jpeg';
-type Resolution = 'hd' | 'fullhd' | '4k';
 
-const RESOLUTIONS: Record<Resolution, { width: number; height: number; label: string }> = {
-  hd: { width: 1280, height: 720, label: 'HD' },
-  fullhd: { width: 1920, height: 1080, label: 'Full HD' },
-  '4k': { width: 3840, height: 2160, label: '4K' },
-};
+const EXPORT_WIDTH = 3840;
+const EXPORT_HEIGHT = 2160;
 
 export function ExportPanel({ open, onClose }: ExportPanelProps) {
   const renderEngine = useEditorStore((s) => s.renderEngine);
   const backgroundConfig = useEditorStore((s) => s.backgroundConfig);
   const [format, setFormat] = useState<Format>('png');
-  const [resolution, setResolution] = useState<Resolution>('fullhd');
   const [transparent, setTransparent] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -64,13 +59,12 @@ export function ExportPanel({ open, onClose }: ExportPanelProps) {
 
     // Use setTimeout to allow UI to update before heavy render
     setTimeout(() => {
-      const res = RESOLUTIONS[resolution];
       const useTransparent = format === 'png' && transparent;
-      const dataURL = renderEngine.exportImage(res.width, res.height, format, useTransparent);
+      const dataURL = renderEngine.exportImage(EXPORT_WIDTH, EXPORT_HEIGHT, format, useTransparent);
 
       const a = document.createElement('a');
       a.href = dataURL;
-      a.download = `mockup-${res.label.toLowerCase().replace(' ', '')}-${Date.now()}.${format === 'jpeg' ? 'jpg' : 'png'}`;
+      a.download = `mockup-4k-${Date.now()}.${format === 'jpeg' ? 'jpg' : 'png'}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -78,8 +72,6 @@ export function ExportPanel({ open, onClose }: ExportPanelProps) {
       setIsExporting(false);
     }, 50);
   };
-
-  const res = RESOLUTIONS[resolution];
 
   return (
     <>
@@ -165,27 +157,6 @@ export function ExportPanel({ open, onClose }: ExportPanelProps) {
             </div>
           )}
 
-          {/* Resolution */}
-          <div className="space-y-3">
-            <label className="text-xs font-semibold text-gray-300 uppercase tracking-widest">Resolução</label>
-            <div className="space-y-2">
-              {(Object.entries(RESOLUTIONS) as [Resolution, typeof RESOLUTIONS[Resolution]][]).map(([key, val]) => (
-                <button
-                  key={key}
-                  onClick={() => setResolution(key)}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg border text-xs font-medium transition-all ${
-                    resolution === key
-                      ? 'border-blue-500 bg-blue-500/10 text-blue-400'
-                      : 'border-gray-700 bg-gray-900 text-gray-400 hover:border-gray-600 hover:text-gray-300'
-                  }`}
-                >
-                  <span>{val.label}</span>
-                  <span className="text-gray-500 font-mono">{val.width}×{val.height}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* Summary */}
           <div className="space-y-3">
             <label className="text-xs font-semibold text-gray-300 uppercase tracking-widest">Resumo</label>
@@ -196,16 +167,16 @@ export function ExportPanel({ open, onClose }: ExportPanelProps) {
               </div>
               <div className="flex justify-between text-xs">
                 <span className="text-gray-500">Resolução</span>
-                <span className="text-gray-200 font-medium">{res.label}</span>
+                <span className="text-gray-200 font-medium">4K</span>
               </div>
               <div className="flex justify-between text-xs">
                 <span className="text-gray-500">Dimensões</span>
-                <span className="text-gray-200 font-mono">{res.width}×{res.height}px</span>
+                <span className="text-gray-200 font-mono">3840×2160px</span>
               </div>
               {format === 'png' && (
                 <div className="flex justify-between text-xs">
                   <span className="text-gray-500">Fundo</span>
-                  <span className="text-gray-200 font-medium">{transparent ? 'Transparente' : 'Sólido'}</span>
+                  <span className="text-gray-200 font-medium">{transparent ? 'Transparente (recortado)' : 'Com fundo'}</span>
                 </div>
               )}
             </div>
